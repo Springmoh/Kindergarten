@@ -15,13 +15,16 @@ enum {
   DOWN,
 };
 
-int view = Decimal;
+int view = 1;
 int counter = 0;
 int state = STOP1;
 int nDigits = 0;
+int nbinDigits = 0;
+int nhexDigits = 0;
 float timer = millis();
+float pressedtime = millis();
 char buffer[20];
-char binbuffer[20];
+char binbuffer[5];
 char hexbuffer[20];
 
 void setup() {
@@ -33,181 +36,129 @@ void setup() {
   max7219.Clear();
 }
 
-void decimalToBinary(int decimal, char *binaryString) {
+void decimalToBinary(int decimal, char *binaryString, int bitSize) {
   int index = 0;
-  int temp = decimal;
+  unsigned int mask = 1 << (bitSize - 1);  // Mask to extract the most significant bit
 
   // Handle the special case for 0
   if (decimal == 0) {
-    strcpy(binaryString, "0");
+    for (int i = 0; i < bitSize; i++) {
+      binaryString[i] = '0';
+    }
+    binaryString[bitSize] = '\0';
     return;
   }
 
+  // For negative numbers, convert to two's complement
+  unsigned int num = (unsigned int)decimal;
+  if (decimal < 0) {
+    num = (unsigned int)(~(-decimal) + 1);  // Two's complement
+  }
+
   // Calculate the binary representation
-  while (temp > 0) {
-    binaryString[index++] = (temp % 2) ? '1' : '0';
-    temp /= 2;
+  while (index < bitSize) {
+    binaryString[index++] = (num & mask) ? '1' : '0';
+    num <<= 1;
   }
 
   // Null-terminate the string
   binaryString[index] = '\0';
 
-  // Reverse the string since the binary digits are in reverse order
-  int start = 0;
-  int end = index - 1;
-  char ch;
-  while (start < end) {
-    ch = binaryString[start];
-    binaryString[start] = binaryString[end];
-    binaryString[end] = ch;
-    start++;
-    end--;
-  }
+  // No need to reverse the string since we fill it from the most significant bit
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if (!digitalRead(3)) {
-    while (!digitalRead(3)) {
+  if (!digitalRead(BUTTON)) {
+    pressedtime = millis();
+    while (!digitalRead(BUTTON)) {
       delay(10);
     }
-    if (view < 3) {
-      view++;
+    if (millis() - pressedtime > 200) {
+
+      if (view < 3) {
+        view++;
+      } else {
+        view = Decimal;
+      }
+
+
     } else {
-      view = Decimal;
+      if (state < 3) {
+        state++;
+      } else {
+        state = 0;
+      }
     }
   }
 
   switch (view) {
     case Decimal:
-      if(strlen(buffer) != nDigits){
-        max7219.Clear();
-      }
-      
-      max7219.DisplayChar(7, 'd', 0);
-      max7219.DisplayChar(6, 'E', 0);
-      max7219.DisplayChar(5, 'c', 0);
-      
-/*
-      if (counter < 10000) {
-        sprintf(buffer, "%d", counter);
-        if (counter < 10) {
-          max7219.DisplayChar(0, buffer[0], 0);
-        } else if (counter < 100) {
-          max7219.DisplayChar(1, buffer[0], 0);
-          max7219.DisplayChar(0, buffer[1], 0);
-        } else if (counter < 1000) {
-          max7219.DisplayChar(2, buffer[0], 0);
-          max7219.DisplayChar(1, buffer[1], 0);
-          max7219.DisplayChar(0, buffer[2], 0);
-        } else if (counter < 10000) {
-          max7219.DisplayChar(3, buffer[0], 0);
-          max7219.DisplayChar(2, buffer[1], 0);
-          max7219.DisplayChar(1, buffer[2], 0);
-          max7219.DisplayChar(0, buffer[3], 0);
-        }
-      } else {
-        max7219.DisplayChar(3, '9', 0);
-        max7219.DisplayChar(2, '9', 0);
-        max7219.DisplayChar(1, '9', 0);
-        max7219.DisplayChar(0, '9', 0);
-      }
-*/
 
       if (counter < 10000) {
         sprintf(buffer, "%d", counter);
-        Serial.println(strlen(buffer));
+        max7219.DisplayChar(7, 'd', 0);
+        max7219.DisplayChar(6, 'E', 0);
+        max7219.DisplayChar(5, 'c', 0);
+        if (strlen(buffer) != nDigits) {
+          max7219.Clear();
+        }
 
         for (int i = 0; i <= strlen(buffer); i++) {
-          max7219.DisplayChar(i-1, buffer[strlen(buffer) - i], 0);
+          max7219.DisplayChar(i - 1, buffer[strlen(buffer) - i], 0);
         }
-
-      } else {
-        max7219.DisplayChar(3, '9', 0);
-        max7219.DisplayChar(2, '9', 0);
-        max7219.DisplayChar(1, '9', 0);
-        max7219.DisplayChar(0, '9', 0);
       }
 
       nDigits = strlen(buffer);
-
       break;
 
 
     case Binary:
+
+
+      decimalToBinary(counter, binbuffer, 4);
+
+
+
       max7219.DisplayChar(7, 'b', 0);
       max7219.DisplayChar(6, 'i', 0);
       max7219.DisplayChar(5, 'n', 0);
-
-      if (counter <= 15) {
-        decimalToBinary(counter, binbuffer);
-        if (counter < 2) {
-          max7219.DisplayChar(0, binbuffer[0], 0);
-        } else if (counter < 4) {
-          max7219.DisplayChar(1, binbuffer[0], 0);
-          max7219.DisplayChar(0, binbuffer[1], 0);
-        } else if (counter < 8) {
-          max7219.DisplayChar(2, binbuffer[0], 0);
-          max7219.DisplayChar(1, binbuffer[1], 0);
-          max7219.DisplayChar(0, binbuffer[2], 0);
-        } else if (counter < 16) {
-          max7219.DisplayChar(3, binbuffer[0], 0);
-          max7219.DisplayChar(2, binbuffer[1], 0);
-          max7219.DisplayChar(1, binbuffer[2], 0);
-          max7219.DisplayChar(0, binbuffer[3], 0);
-        }
-      } else {
-        max7219.DisplayChar(3, '1', 0);
-        max7219.DisplayChar(2, '1', 0);
-        max7219.DisplayChar(1, '1', 0);
-        max7219.DisplayChar(0, '1', 0);
+      if (strlen(binbuffer) != nbinDigits) {
+        max7219.Clear();
       }
+      // Serial.println(binbuffer);
+      if (abs(counter) <= 15) {
+        for (int i = 0; i <= strlen(binbuffer); i++) {
+          max7219.DisplayChar(i - 1, binbuffer[strlen(binbuffer) - i], 0);
+        }
+      }
+      // }
+      nbinDigits = strlen(binbuffer);
 
       break;
 
     case Hexadecimal:
-      max7219.DisplayChar(7, 'h', 0);
-      max7219.DisplayChar(6, 'E', 0);
-      max7219.DisplayChar(5, 'H', 0);
 
       if (counter <= 0xffff) {
         sprintf(hexbuffer, "%x", counter);
-        if (counter < 0x10) {
-          max7219.DisplayChar(0, hexbuffer[0], 0);
-        } else if (counter < 0x100) {
-          max7219.DisplayChar(1, hexbuffer[0], 0);
-          max7219.DisplayChar(0, hexbuffer[1], 0);
-        } else if (counter < 0x1000) {
-          max7219.DisplayChar(2, hexbuffer[0], 0);
-          max7219.DisplayChar(1, hexbuffer[1], 0);
-          max7219.DisplayChar(0, hexbuffer[2], 0);
-        } else if (counter < 0x10000) {
-          max7219.DisplayChar(3, hexbuffer[0], 0);
-          max7219.DisplayChar(2, hexbuffer[1], 0);
-          max7219.DisplayChar(1, hexbuffer[2], 0);
-          max7219.DisplayChar(0, hexbuffer[3], 0);
+        if (strlen(hexbuffer) != nhexDigits) {
+          max7219.Clear();
         }
-      } else {
-        max7219.DisplayChar(3, 'f', 0);
-        max7219.DisplayChar(2, 'f', 0);
-        max7219.DisplayChar(1, 'f', 0);
-        max7219.DisplayChar(0, 'f', 0);
+
+        max7219.DisplayChar(7, 'h', 0);
+        max7219.DisplayChar(6, 'E', 0);
+        max7219.DisplayChar(5, 'H', 0);
+
+        for (int i = 0; i <= strlen(hexbuffer); i++) {
+          max7219.DisplayChar(i - 1, hexbuffer[strlen(hexbuffer) - i], 0);
+        }
       }
+
+      nhexDigits = strlen(hexbuffer);
 
 
 
       break;
-  }
-
-  if (!digitalRead(BUTTON)) {
-    while (!digitalRead(BUTTON)) {
-      delay(10);
-    }
-    if (state < 3) {
-      state++;
-    } else {
-      state = STOP1;
-    }
   }
 
   switch (state) {
@@ -229,4 +180,11 @@ void loop() {
       counter = counter;
       break;
   }
+
+  Serial.print("View: ");
+  Serial.print(view);
+  Serial.print("  State: ");
+  Serial.print(state);
+  Serial.print("  Count: ");
+  Serial.println(counter);
 }
