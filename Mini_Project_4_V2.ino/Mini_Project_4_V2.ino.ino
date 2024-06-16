@@ -1,7 +1,18 @@
-#include <max7219.h>
+#include <LedControl.h>
+
+/*
+ Now we need a LedControl to work with.
+ ** These pin numbers will probably not work with your hardware **
+ pin 12 is connected to the DataIn 
+ pin 11 is connected to the CLK 
+ pin 10 is connected to LOAD 
+ We have only a single MAX72XX.
+ */
+LedControl lc = LedControl(9, 11, 10, 1);
+
 #include <string.h>
 #define BUTTON 2  //assign pin 2 to the button
-MAX7219 max7219;
+
 enum {
   Decimal = 1,
   Binary,
@@ -15,27 +26,31 @@ enum {
   DOWN,
 };
 
-int view = 1;
+int view = Decimal;
 int counter = 0;
 int state = STOP1;
-int nDigits = 0;
-int nbinDigits = 0;
-int nhexDigits = 0;
-  float timer = millis();
+int DecDigitCheck = 1;
+int BinDigitCheck = 4;
+int HexDigitCheck = 1;
+float timer = millis();
 float pressedtime = millis();
-char buffer[20];
-char binbuffer[5];
-char hexbuffer[20];
+char Dec_buffer[20];
+char Bin_buffer[20];
+char Hex_buffer[20];
 
 void setup() {
   // put your setup code here, to run once:
+  lc.shutdown(0, false);
+  lc.setIntensity(0, 8);
+  lc.clearDisplay(0);
+
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(3, INPUT_PULLUP);
   Serial.begin(9600);
-  max7219.Begin();
-  max7219.Clear();
 }
 
+
+//From ChatGPT:
 void decimalToBinary(int decimal, char *binaryString, int bitSize) {
   int index = 0;
   unsigned int mask = 1 << (bitSize - 1);  // Mask to extract the most significant bit
@@ -66,6 +81,7 @@ void decimalToBinary(int decimal, char *binaryString, int bitSize) {
 
   // No need to reverse the string since we fill it from the most significant bit
 }
+//End from Chatgpt
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -82,82 +98,62 @@ void loop() {
         view = Decimal;
       }
 
-
     } else {
       if (state < 3) {
         state++;
       } else {
         state = 0;
       }
+      lc.clearDisplay(0);
     }
   }
 
   switch (view) {
     case Decimal:
-
-      if (counter < 10000) {
-        sprintf(buffer, "%d", counter);
-        max7219.DisplayChar(7, 'd', 0);
-        max7219.DisplayChar(6, 'E', 0);
-        max7219.DisplayChar(5, 'c', 0);
-        if (strlen(buffer) != nDigits) {
-          max7219.Clear();
+      if (counter < 10000) {  //set limit prevent overlap with "dEc"
+        sprintf(Dec_buffer, "%d", counter);
+        if (strlen(Dec_buffer) != DecDigitCheck) {
+          lc.clearDisplay(0);
         }
-
-        for (int i = 0; i <= strlen(buffer); i++) {
-          max7219.DisplayChar(i - 1, buffer[strlen(buffer) - i], 0);
+        lc.setChar(0, 7, 'd', false);
+        lc.setChar(0, 6, 'E', false);
+        lc.setChar(0, 5, 'c', false);
+        for (int i = 0; i <= strlen(Dec_buffer); i++) {
+          lc.setChar(0, i - 1, Dec_buffer[strlen(Dec_buffer) - i], false);
         }
       }
-
-      nDigits = strlen(buffer);
+      DecDigitCheck = strlen(Dec_buffer);
       break;
 
-
     case Binary:
-
-
-      decimalToBinary(counter, binbuffer, 4);
-
-
-
-      max7219.DisplayChar(7, 'b', 0);
-      max7219.DisplayChar(6, 'i', 0);
-      max7219.DisplayChar(5, 'n', 0);
-      if (strlen(binbuffer) != nbinDigits) {
-        max7219.Clear();
+      decimalToBinary(counter, Bin_buffer, 4);
+      if (strlen(Bin_buffer) != BinDigitCheck) {
+        lc.clearDisplay(0);
       }
-      // Serial.println(binbuffer);
-      if (abs(counter) <= 15) {
-        for (int i = 0; i <= strlen(binbuffer); i++) {
-          max7219.DisplayChar(i - 1, binbuffer[strlen(binbuffer) - i], 0);
-        }
+      lc.setChar(0, 7, 'b', false);
+      lc.setChar(0, 6, 'i', false);
+      lc.setChar(0, 5, 'n', false);
+      //print the 4 LSB:
+      for (int i = 0; i <= strlen(Bin_buffer); i++) {
+        lc.setChar(0, i - 1, Bin_buffer[strlen(Bin_buffer) - i], false);
       }
-      // }
-      nbinDigits = strlen(binbuffer);
-
+      BinDigitCheck = strlen(Bin_buffer);
       break;
 
     case Hexadecimal:
-
       if (counter <= 0xffff) {
-        sprintf(hexbuffer, "%x", counter);
-        if (strlen(hexbuffer) != nhexDigits) {
-          max7219.Clear();
+        sprintf(Hex_buffer, "%x", counter);
+        if (strlen(Hex_buffer) != HexDigitCheck) {
+          lc.clearDisplay(0);
         }
-
-        max7219.DisplayChar(7, 'h', 0);
-        max7219.DisplayChar(6, 'E', 0);
-        max7219.DisplayChar(5, 'H', 0);
-
-        for (int i = 0; i <= strlen(hexbuffer); i++) {
-          max7219.DisplayChar(i - 1, hexbuffer[strlen(hexbuffer) - i], 0);
+        lc.setChar(0, 7, 'h', false);
+        lc.setChar(0, 6, 'E', false);
+        lc.setChar(0, 5, 'H', false);
+        for (int i = 0; i <= strlen(Hex_buffer); i++) {
+          lc.setChar(0, i - 1, Hex_buffer[strlen(Hex_buffer) - i], false);
         }
+        HexDigitCheck = strlen(Hex_buffer);
       }
-
-      nhexDigits = strlen(hexbuffer);
-
-
-
       break;
   }
 
