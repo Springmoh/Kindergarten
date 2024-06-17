@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 void decimalToBinary(int decimal, char *binaryString, int bitSize) {
   int index = 0;
@@ -33,20 +34,21 @@ void decimalToBinary(int decimal, char *binaryString, int bitSize) {
 }
 
 int main(){
-  char binString[4];
-  decimalToBinary(4,binString,4);
-  for(int i = 0; i < 4; i++){
-    if(binString[i]=='0'){
-      binString[i]='\0';
-    }else{
-      break;
-    }
+    char binString[5];
+  decimalToBinary(4, binString, 4);
+
+  // Find the index of the first '1'
+  int firstOneIndex = 0;
+  while (firstOneIndex < 4 && binString[firstOneIndex] == '0') {
+    firstOneIndex++;
+  }
+  printf("1stOneIndex: %d\n",firstOneIndex);
+  // If all bits are zero, handle this case separately
+  if (firstOneIndex == 4) {
+    printf("0\n");
+  } else {
+    printf("%s\n", &binString[0]);
   }
 
-  for(int i = 0; i<4; i++){
-  }
-  
-  // printf("%d\n",binString[1] == '0');
-  printf("%s\n",binString);
-    return 0;
+  return 0;
 }
