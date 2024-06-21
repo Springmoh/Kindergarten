@@ -152,7 +152,7 @@ void loop() {
       break;
 
     case Binary:
-      decimalToBinary(counter, Bin_buffer, 4); //decimalToBinary 这个 function 有点复杂，是 chatgpt 写的，你们可以把整个 function copy 进去问他先，实在不明白的和再问我
+      decimalToBinary(counter, Bin_buffer, 4);  //decimalToBinary 这个 function 有点复杂，是 chatgpt 写的，你们可以把整个 function copy 进去问他先，实在不明白的和再问我
       if (strlen(Bin_buffer) != BinDigitCheck) {
         lc.clearDisplay(0);
       }
@@ -185,14 +185,14 @@ void loop() {
 
   switch (state) {
     case UP:
-      if (millis() - timer > 500) { //每500ms+1
+      if (millis() - timer > 500) {  //每500ms+1
         counter++;
         timer = millis();
       }
       break;
 
     case DOWN:
-      if (millis() - timer > 500) {//每500ms-1
+      if (millis() - timer > 500) {  //每500ms-1
         counter--;
         timer = millis();
       }
