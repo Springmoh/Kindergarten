@@ -85,21 +85,23 @@ void decimalToBinary(int decimal, char *binaryString, int bitSize) {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if (!digitalRead(BUTTON)) {
-    pressedtime = millis();
-    while (!digitalRead(BUTTON)) {
+
+  /*
+  if (!digitalRead(BUTTON)) {       //如果按board上面的button
+    pressedtime = millis();         //reset pressedtime
+    while (!digitalRead(BUTTON)) {  //等你把button放开
       delay(10);
     }
-    if (millis() - pressedtime > 200) {
+    if (millis() - pressedtime > 200) {  //如果你按的时间大过200ms
 
-      if (view < 3) {
+      if (view < 3) {  //换view
         view++;
       } else {
         view = Decimal;
       }
 
-    } else {
-      if (state < 3) {
+    } else {            //如果小过或者等于200ms
+      if (state < 3) {  //换state
         state++;
       } else {
         state = 0;
@@ -107,12 +109,36 @@ void loop() {
       lc.clearDisplay(0);
     }
   }
+  */
+
+  //跟着你们的题目改了，但是你们需要自己connect pull-up resistor PB
+  if (!digitalRead(BUTTON)) {       //如果按board上面的button
+    while (!digitalRead(BUTTON)) {  //等你放手
+      delay(10);
+    }
+    if (view < 3) {  //换view
+      view++;
+    } else {
+      view = Decimal;
+    }
+  }
+
+  if (!digitalRead(3)) {       //按接去3号的那个PB
+    while (!digitalRead(3)) {  //等你放手
+      delay(10);
+    }
+    if (state < 3) {  //换state
+      state++;
+    } else {
+      state = 0;
+    }
+  }
 
   switch (view) {
     case Decimal:
-      if (counter < 10000) {  //set limit prevent overlap with "dEc"
-        sprintf(Dec_buffer, "%d", counter);
-        if (strlen(Dec_buffer) != DecDigitCheck) {
+      if (counter < 10000) {                        //set limit prevent overlap with "dEc"
+        sprintf(Dec_buffer, "%d", counter);         //把 counter sprintf 进 Dec_buffer
+        if (strlen(Dec_buffer) != DecDigitCheck) {  //这个是如果你的号码从比较多 digit 掉到比较少 digit，clear掉全部 （不明白我说什么的和可以再问我）
           lc.clearDisplay(0);
         }
         lc.setChar(0, 7, 'd', false);
@@ -126,7 +152,7 @@ void loop() {
       break;
 
     case Binary:
-      decimalToBinary(counter, Bin_buffer, 4);
+      decimalToBinary(counter, Bin_buffer, 4); //decimalToBinary 这个 function 有点复杂，是 chatgpt 写的，你们可以把整个 function copy 进去问他先，实在不明白的和再问我
       if (strlen(Bin_buffer) != BinDigitCheck) {
         lc.clearDisplay(0);
       }
@@ -159,14 +185,14 @@ void loop() {
 
   switch (state) {
     case UP:
-      if (millis() - timer > 500) {
+      if (millis() - timer > 500) { //每500ms+1
         counter++;
         timer = millis();
       }
       break;
 
     case DOWN:
-      if (millis() - timer > 500) {
+      if (millis() - timer > 500) {//每500ms-1
         counter--;
         timer = millis();
       }

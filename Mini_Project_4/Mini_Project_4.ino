@@ -21,7 +21,7 @@ int state = STOP1;
 int nDigits = 0;
 int nbinDigits = 0;
 int nhexDigits = 0;
-  float timer = millis();
+float timer = millis();
 float pressedtime = millis();
 char buffer[20];
 char binbuffer[5];
