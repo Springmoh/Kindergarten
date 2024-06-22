@@ -450,7 +450,7 @@ void StartDefaultTask(void *argument)
 		flag2 ? HAL_GPIO_WritePin(LED2, 1) : HAL_GPIO_WritePin(LED2, 0);
 		flag3 ? HAL_GPIO_WritePin(LED3, 1) : HAL_GPIO_WritePin(LED3, 0);
 
-		if (HAL_GetTick() - resettimer >= 500) {
+		if (HAL_GetTick() - resettimer >= 1000*60*60*6) {
 			flag1 = 0;
 			flag2 = 0;
 			flag3 = 0;

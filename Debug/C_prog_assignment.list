@@ -2271,7 +2271,7 @@ void StartDefaultTask(void *argument)
  80014fa:	4820      	ldr	r0, [pc, #128]	@ (800157c <StartDefaultTask+0x21c>)
  80014fc:	f000 fe4b 	bl	8002196 <HAL_GPIO_WritePin>
 
-		if (HAL_GetTick() - resettimer >= 500) {
+		if (HAL_GetTick() - resettimer >= 1000*60*60*6) {
  8001500:	f000 fb12 	bl	8001b28 <HAL_GetTick>
  8001504:	4603      	mov	r3, r0
  8001506:	4618      	mov	r0, r3
@@ -2326,7 +2326,7 @@ void StartDefaultTask(void *argument)
  8001580:	200002b8 	.word	0x200002b8
  8001584:	200002bc 	.word	0x200002bc
  8001588:	200002c0 	.word	0x200002c0
- 800158c:	43fa0000 	.word	0x43fa0000
+ 800158c:	4ba4cb80 	.word	0x4ba4cb80
 
 08001590 <StartTask02>:
  * @param argument: Not used
