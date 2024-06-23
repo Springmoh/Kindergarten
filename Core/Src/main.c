@@ -34,8 +34,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define PB1 GPIOA, GPIO_PIN_4
-#define PB2 GPIOA, GPIO_PIN_5
-#define PB3 GPIOA, GPIO_PIN_6
+#define PB2 GPIOA, GPIO_PIN_7
+#define PB3 GPIOB, GPIO_PIN_10
 #define LED1 GPIOA, GPIO_PIN_10
 #define LED2 GPIOA, GPIO_PIN_11
 #define LED3 GPIOA, GPIO_PIN_12
@@ -95,7 +95,7 @@ uint32_t Difference = 0;
 uint8_t Is_First_Captured = 0;  // is the first value captured ?
 float Distance = 0;
 char uartbuffer[20];
-float distancebuffer;
+int distancebuffer;
 
 int flag1, flag2, flag3;
 int PB1state, PB2state, PB3state;
@@ -372,6 +372,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
@@ -386,11 +387,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA4 PA5 PA6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+  /*Configure GPIO pins : PA4 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA9 PA10 PA11 PA12 */
   GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
@@ -435,12 +442,15 @@ void StartDefaultTask(void *argument)
 		PB3state = !HAL_GPIO_ReadPin(PB3);
 		if (PB1state && !PB1buffer) {
 			flag1 = !flag1;
+			resettimer = HAL_GetTick();
 		}
 		if (PB2state && !PB2buffer) {
 			flag2 = !flag2;
+			resettimer = HAL_GetTick();
 		}
 		if (PB3state && !PB3buffer) {
 			flag3 = !flag3;
+			resettimer = HAL_GetTick();
 		}
 		PB1buffer = PB1state;
 		PB2buffer = PB2state;
@@ -450,7 +460,7 @@ void StartDefaultTask(void *argument)
 		flag2 ? HAL_GPIO_WritePin(LED2, 1) : HAL_GPIO_WritePin(LED2, 0);
 		flag3 ? HAL_GPIO_WritePin(LED3, 1) : HAL_GPIO_WritePin(LED3, 0);
 
-		if (HAL_GetTick() - resettimer >= 1000*60*60*6) {
+		if (HAL_GetTick() - resettimer >= 1000*10) {
 			flag1 = 0;
 			flag2 = 0;
 			flag3 = 0;
@@ -473,9 +483,9 @@ void StartTask02(void *argument)
 	/* Infinite loop */
 	for (;;) {
 		HCSR04_Read();
-		distancebuffer = Distance;
+		distancebuffer = (int)Distance;
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		osDelay(20);
+		osDelay(50);
 	}
   /* USER CODE END StartTask02 */
 }
