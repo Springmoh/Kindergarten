@@ -508,9 +508,9 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void RGB(int red, int green, int blue){
-	redpwm = (int)(red * 3000 / 255);
-	greenpwm = (int)(green * 3000 / 255);
-	bluepwm = (int)(blue * 3000 / 255);
+	redpwm = (int)(red * 20000 / 255);
+	greenpwm = (int)(green * 5000 / 255);
+	bluepwm = (int)(blue * 20000 / 255);
 
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, redpwm); //red
 	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, greenpwm); //green
