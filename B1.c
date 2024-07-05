@@ -7,13 +7,13 @@ int main()
     int flag = 0;
     while (1)
     {
+        flag = 0;
         printf("Enter a palindrome: ");
         scanf("%s", userinput);
         for (int i = 0; i < strlen(userinput); i++)
         {
             if (userinput[i] != userinput[strlen(userinput) - i - 1])
             {
-
                 flag = 1;
             }
         }
