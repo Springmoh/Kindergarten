@@ -63,8 +63,8 @@ all: main-build
 main-build: microP_individual.elf secondary-outputs
 
 # Tool invocations
-microP_individual.elf microP_individual.map: $(OBJS) $(USER_OBJS) D:\STM32CubeIDE\Workspace\microP_individual\STM32F410CBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "microP_individual.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32CubeIDE\Workspace\microP_individual\STM32F410CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="microP_individual.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+microP_individual.elf microP_individual.map: $(OBJS) $(USER_OBJS) /home/mohnc/Desktop/File/academic/uP_individual/STM32F410CBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "microP_individual.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/mohnc/Desktop/File/academic/uP_individual/STM32F410CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="microP_individual.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
