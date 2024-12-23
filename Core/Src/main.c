@@ -36,6 +36,7 @@ int main() {
 		raw = ADC1->DR;             // Read ADC value (EOC clears automatically)
 
 		voltage = (((float) raw / 4095.0) * 5.0 / 10.0 * 30.0) + 0.01;
+		voltage = voltage > 10.0 ? 10.0 : voltage;
 		digit2 = modf(voltage, &digit1);
 
 		switch ((int) digit1) {
