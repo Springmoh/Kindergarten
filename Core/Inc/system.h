@@ -83,13 +83,13 @@ void Configure_TIM1_PWM(void) {
     TIM1->CR1 |= (1 << 0); // Enable TIM1 counter
 }
 
-void Configure_Timer2(void) {
+void Configure_TIM2(void) {
     // Enable TIM2 clock
     RCC->APB1ENR |= (1 << 0); // TIM2 clock enable
 
     // Set TIM2 for 1 Hz (1-second period)
-    TIM2->PSC = 84 - 1;  // Prescaler to divide 84 MHz by 8400 = 10 kHz
-    TIM2->ARR = 20000 - 1; // Auto-reload value to count 10000 ticks = 1 second
+    TIM2->PSC = 144 - 1;        // Prescaler: 84 MHz / 84 = 1 MHz
+    TIM2->ARR = 20000 - 1;   // Auto-reload: 1 MHz / 1,000,000 = 1 Hz (1-second period)
 
     // Enable Update Interrupt
     TIM2->DIER |= TIM_DIER_UIE; // Enable update interrupt
@@ -98,7 +98,30 @@ void Configure_Timer2(void) {
     TIM2->CR1 |= TIM_CR1_CEN; // Enable counter
 
     // Enable TIM2 interrupt in NVIC
+    NVIC_SetPriority(TIM2_IRQn, 9); // Set interrupt priority
     NVIC_EnableIRQ(TIM2_IRQn);
 }
+
+void Configure_TIM3(void) {
+    // Enable TIM3 clock
+    RCC->APB1ENR |= (1 << 1); // TIM3 clock enable
+
+    // Set TIM3 for 1 Hz (1-second period)
+    TIM3->PSC = 84 - 1;        // Prescaler: 84 MHz / 84 = 1 MHz
+    TIM3->ARR = 1000 - 1;   // Auto-reload: 1 MHz / 1,000,000 = 1 Hz (1-second period)
+
+    // Enable Update Interrupt
+    TIM3->DIER |= TIM_DIER_UIE; // Enable update interrupt
+
+    // Enable TIM3
+    TIM3->CR1 |= TIM_CR1_CEN; // Enable counter
+
+    // Enable TIM3 interrupt in NVIC
+    NVIC_SetPriority(TIM3_IRQn, 9); // Set interrupt priority
+    NVIC_EnableIRQ(TIM3_IRQn);
+}
+
+
+
 
 #endif /* INC_SYSTEM_H_ */

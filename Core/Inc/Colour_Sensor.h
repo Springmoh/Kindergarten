@@ -156,7 +156,7 @@ void getRawData (uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c)
   *g = read16(TCS34725_GDATAL);
   *b = read16(TCS34725_BDATAL);
   /* Delay time is from page no 16/26 from the datasheet  (256 − ATIME)* 2.4ms */
-  Delay_ms (50); // Set delay for (256 − 0xEB)* 2.4ms = 50ms
+//  Delay_ms (50); // Set delay for (256 − 0xEB)* 2.4ms = 50ms
 }
 
 /* Get Red, Green and Blue color from Raw Data */

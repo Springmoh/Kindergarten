@@ -8,6 +8,9 @@
 #ifndef INC_ADAPTER_H_
 #define INC_ADAPTER_H_
 
+#include<stdio.h>
+#include<stdlib.h>
+
 typedef struct {
 	union {
 		uint32_t Word;
