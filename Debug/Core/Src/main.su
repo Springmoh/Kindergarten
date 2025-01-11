@@ -1,7 +1,7 @@
 ../Drivers/CMSIS/Include/core_cm4.h:1684:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
 ../Drivers/CMSIS/Include/core_cm4.h:1814:22:__NVIC_SetPriority	16	static
-../Core/Inc/adapter.h:99:6:SegUpdate	16	static
-../Core/Inc/adapter.h:186:6:Motor	16	static
+../Core/Inc/adapter.h:114:6:SegUpdate	16	static
+../Core/Inc/adapter.h:201:6:Motor	16	static
 ../Core/Inc/RCC_Config.h:20:6:SysClockConfig	4	static
 ../Core/Inc/i2c.h:21:6:I2C1_Config	4	static
 ../Core/Inc/i2c.h:51:6:I2C1_Start	4	static
@@ -29,7 +29,7 @@
 ../Core/Inc/usart.h:15:6:Configure_USART2	8	static
 ../Core/Inc/usart.h:71:6:UART_Transmit_IT	16	static
 ../Core/Inc/usart.h:85:6:UART_Transmit_Blocking	24	static
-../Core/Src/main.c:16:5:main	24	static
-../Core/Src/main.c:54:6:TIM2_IRQHandler	4	static
-../Core/Src/main.c:73:6:USART2_IRQHandler	4	static
-../Core/Src/main.c:84:6:TIM3_IRQHandler	4	static
+../Core/Src/main.c:16:5:main	16	static
+../Core/Src/main.c:99:6:TIM2_IRQHandler	8	static
+../Core/Src/main.c:117:6:USART2_IRQHandler	4	static
+../Core/Src/main.c:127:6:TIM3_IRQHandler	4	static

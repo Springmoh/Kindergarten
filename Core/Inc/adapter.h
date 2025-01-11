@@ -63,6 +63,17 @@ typedef enum{
 	RIGHT_MOTOR,
 }motor_e;
 
+typedef enum{
+	SQUARE_1 = 1,
+	SQUARE_2,
+	SQUARE_3,
+	SQUARE_4,
+	SQUARE_5,
+	SQUARE_6,
+}number_e;
+
+number_e Square;
+
 #define GPIOA_OUT			((word_t*) &GPIOA->ODR)
 #define GPIOB_OUT			((word_t*) &GPIOB->ODR)
 #define GPIOC_OUT			((word_t*) &GPIOC->ODR)
@@ -91,10 +102,14 @@ typedef enum{
 #define M_PWM34		TIM1->CCR4
 #define PB1			GPIOB_IN->bit2
 #define PB2			GPIOB_IN->bit10
-#define sensor1 	GPIOC_IN->bit15
-#define sensor2 	GPIOC_IN->bit14
+#define sensorL 	GPIOC_IN->bit15
+#define sensorR 	GPIOC_IN->bit14
 
-uint8_t Seg1Value, Seg2Value;
+#define RED_THRESHOLD	90
+#define LEFT_F_SPEED	11000
+#define RIGHT_F_SPEED	10000
+uint8_t Seg1Value, Seg2Value, linedetected;
+uint16_t linedetected_delay;
 
 void SegUpdate() {
 	switch (Seg1Value) {
@@ -185,24 +200,24 @@ void SegUpdate() {
 
 void Motor(uint8_t number, int pwm){
 	switch(number){
-	case LEFT_MOTOR:
+	case RIGHT_MOTOR:
 		if (pwm >= 0) {
-			M_IN1 = 0;
-			M_IN2 = 1;
-		} else {
 			M_IN1 = 1;
 			M_IN2 = 0;
+		} else {
+			M_IN1 = 0;
+			M_IN2 = 1;
 		}
 		M_PWM12 = abs(pwm);
 		break;
 
-	case RIGHT_MOTOR:
+	case LEFT_MOTOR:
 		if (pwm >= 0) {
-			M_IN3 = 1;
-			M_IN4 = 0;
-		} else {
 			M_IN3 = 0;
 			M_IN4 = 1;
+		} else {
+			M_IN3 = 1;
+			M_IN4 = 0;
 		}
 		M_PWM34 = abs(pwm);
 		break;
