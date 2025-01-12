@@ -138,7 +138,7 @@ int main(void) {
 		case 3:
 			leftspeed = 0;
 			rightspeed = 0;
-			imupid.Kp = 60;
+			imupid.Kp = 70;
 			imupid.Ki = 0.0005;
 			imupid.Kd = 2;
 			if (tick - delay > 1000) {
@@ -172,6 +172,18 @@ int main(void) {
 			Lfinalspeed = leftspeed - imupidout;
 			Rfinalspeed = rightspeed + imupidout;
 #endif
+
+			if(Lfinalspeed < -20000){
+				Lfinalspeed = -20000;
+			}else if(Lfinalspeed > 20000){
+				Lfinalspeed = 20000;
+			}
+
+			if(Rfinalspeed < -20000){
+				Rfinalspeed = -20000;
+			}else if(Rfinalspeed > 20000){
+				Rfinalspeed = 20000;
+			}
 
 		if (runflag) {
 			Motor(LEFT_MOTOR, Lfinalspeed);
