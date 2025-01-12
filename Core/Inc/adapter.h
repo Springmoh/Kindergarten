@@ -108,8 +108,8 @@ number_e Square;
 #define RED_THRESHOLD	90
 #define LEFT_F_SPEED	11000
 #define RIGHT_F_SPEED	10000
-uint8_t Seg1Value, Seg2Value, linedetected;
-uint16_t linedetected_delay;
+uint8_t Seg1Value, Seg2Value;
+
 
 void SegUpdate() {
 	switch (Seg1Value) {
@@ -144,6 +144,7 @@ void SegUpdate() {
 		SegData.Seg[0] = 0b11111100;
 		break;
 	default:
+		SegData.Seg[0] = 0b00000000;
 		break;
 	}
 
@@ -179,6 +180,7 @@ void SegUpdate() {
 		SegData.Seg[1] = 0b01111110;
 		break;
 	default:
+		SegData.Seg[1] = 0b00000000;
 		break;
 	}
 

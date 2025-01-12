@@ -63,8 +63,10 @@ void Configure_USART2(void) {
 
 	    // Enable USART2
 	    USART2->CR1 |= (1 << 13); // UE = 1 (USART Enable)
+	    USART2->CR1 |= (1 << 5);
 
 	    NVIC_EnableIRQ(USART2_IRQn);
+	    NVIC_SetPriority(USART2_IRQn, 1); // Set priority (lower number = higher priority)
 
 }
 

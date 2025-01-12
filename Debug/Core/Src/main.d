@@ -10,7 +10,8 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Core/Inc/adapter.h ../Core/Inc/Colour_Sensor.h ../Core/Inc/i2c.h \
  ../Core/Inc/RCC_Config.h ../Core/Inc/Delay.h ../Core/Inc/adapter.h \
  ../Core/Inc/Delay.h ../Core/Inc/i2c.h ../Core/Inc/RCC_Config.h \
- ../Core/Inc/system.h ../Core/Inc/usart.h
+ ../Core/Inc/system.h ../Core/Inc/usart.h ../Core/Inc/imu.h \
+ ../Core/Inc/imu.h ../Core/Inc/pid.h
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h:
 ../Drivers/CMSIS/Include/core_cm4.h:
@@ -30,3 +31,6 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Core/Inc/RCC_Config.h:
 ../Core/Inc/system.h:
 ../Core/Inc/usart.h:
+../Core/Inc/imu.h:
+../Core/Inc/imu.h:
+../Core/Inc/pid.h:
