@@ -27,6 +27,8 @@ float Lfinalspeed, Rfinalspeed;
 uint8_t state, startup, segenable, reportflag, seg2buf;
 int cnt;
 uint8_t receivedData;
+uint16_t sensorLcnt, sensorRcnt;
+float redratio;
 
 unsigned square[6];
 
@@ -43,8 +45,7 @@ int main(void) {
 	tcs3272_init();
 	Configure_USART2();
 
-
-	PID_Init(&imupid, 300, 0, 1);
+	PID_Init(&imupid, 200, 0.1, 1);
 
 	Seg1Value = 0;
 	Seg2Value = 0;
@@ -55,6 +56,7 @@ int main(void) {
 	while (1) {
 		if (tick - timer > 50) {
 			getRGB(&red, &green, &blue);
+			redratio = (float)red/(float)(red+green+blue);
 			timer = tick;
 		}
 
@@ -85,14 +87,11 @@ int main(void) {
 		}
 
 
-		imupidout = PID_Compute(&imupid, AngleTarget, AngleNow);
-
-
 		switch(state){
 		case 0:
 			leftspeed =  10000;
 			rightspeed = 10000;
-			if(tick - delay > 2000){
+			if(tick - delay > 2200){
 				state = 1;
 				delay = tick;
 				leftspeed =  0;
@@ -102,8 +101,8 @@ int main(void) {
 #else
 				AngleTarget += 90;
 #endif
-				imupid.Kp = 75;
-				imupid.Ki = 0.001;
+				imupid.Kp = 120;
+				imupid.Ki = 0.004;
 				imupid.Kd = 3;
 			}
 			break;
@@ -111,7 +110,7 @@ int main(void) {
 		case 1:
 			leftspeed = 0;
 			rightspeed = 0;
-			if (tick - delay > 1000) {
+			if (tick - delay > 2000) {
 				state = 2;
 				delay = tick;
 			}
@@ -124,7 +123,7 @@ int main(void) {
 			imupid.Kp = 100;
 			imupid.Ki = 0;
 			imupid.Kd = 2;
-			if (tick - delay > 650) {
+			if (tick - delay > 900) {
 				state = 3;
 #ifdef shifted
 				AngleTarget -= 90;
@@ -138,10 +137,10 @@ int main(void) {
 		case 3:
 			leftspeed = 0;
 			rightspeed = 0;
-			imupid.Kp = 70;
-			imupid.Ki = 0.0005;
-			imupid.Kd = 2;
-			if (tick - delay > 1000) {
+			imupid.Kp = 120;
+			imupid.Ki = 0.002;
+			imupid.Kd = 3;
+			if (tick - delay > 2000) {
 				state = 4;
 				delay = tick;
 			}
@@ -150,11 +149,11 @@ int main(void) {
 		case 4:
 			leftspeed = 10000;
 			rightspeed = 10000;
-			imupid.Kp = 300;
+			imupid.Kp = 500;
 			imupid.Ki = 0;
 			imupid.Kd = 1;
-			if (tick - delay > 2100) {
-				state = 5;
+			if (tick - delay > 2400) {
+				state = 10;
 				delay = tick;
 			}
 			break;
@@ -196,19 +195,21 @@ int main(void) {
 
 
 		if (segenable) {
-			if (tick - linedetected_delay < 1000) {
+
+			Seg2Value = seg2buf;
+			if (tick - linedetected_delay < 1070) {
 				Seg1Value = 1;
-			} else if (tick - linedetected_delay < 1800) {
+			} else if (tick - linedetected_delay < 1880) {
 				Seg1Value = 2;
-			} else if (tick - linedetected_delay < 3500) {
+			} else if (tick - linedetected_delay < 4530) {
 				Seg1Value = 3;
-			} else if (tick - linedetected_delay < 5000) {
+			} else if (tick - linedetected_delay < 7790) {
 				Seg1Value = 4;
-			} else if (tick - linedetected_delay < 6000) {
+			} else if (tick - linedetected_delay < 8700) {
 				Seg1Value = 5;
-			} else if (tick - linedetected_delay < 7000) {
+			} else if (tick - linedetected_delay < 9430) {
 				Seg1Value = 6;
-			} else if (tick - linedetected_delay < 8000) {
+			} else if (tick - linedetected_delay < 10000) {
 				Seg1Value = 10;
 				seg2buf = Seg2Value;
 				Seg2Value = 10;
@@ -216,11 +217,23 @@ int main(void) {
 			}
 		}
 
-		if(PB2){
+		seg2buf = 0;
+
+		for (int i = 0; i < 6; i++) {
+			if (square[i]) {
+				seg2buf++;
+			}
+		}
+
+		if (PB2) {
 			reportflag = 1;
 			segenable = 1;
+		}
+
+		if(reportflag){
 			Seg2Value = seg2buf;
 		}
+
 
 	}
 }
@@ -232,38 +245,51 @@ void TIM2_IRQHandler(void) { // Timer Interrupt
 
 		if (AngleNow != 180 && AngleNow !=0) {
 			led1 = !led1;
-		}else{
+		} else {
 			led1 = 0;
 		}
-		if (red > 120) {
-			redcnt++;
-			if (redcnt == 1) {
-				if (segenable && !reportflag) {
-					Seg2Value++;
-					switch (Seg1Value) {
-					case 1:
-						square[0] = 1;
-						break;
-					case 2:
-						square[1] = 1;
-						break;
-					case 3:
-						square[2] = 1;
-						break;
-					case 4:
-						square[3] = 1;
-						break;
-					case 5:
-						square[4] = 1;
-						break;
-					case 6:
-						square[5] = 1;
-						break;
-					default:
-						break;
-					}
+
+		if (!sensorL) {
+			sensorLcnt++;
+		} else {
+			sensorLcnt = 0;
+		}
+		if (!sensorR) {
+			sensorRcnt++;
+		} else {
+			sensorRcnt = 0;
+		}
+
+		if (redratio >= 0.34) {
+		redcnt++;
+//		if (red > 120 || sensorRcnt > 10 || sensorLcnt > 10) {
+		if (redcnt == 1) {
+			if (segenable && !reportflag) {
+//					Seg2Value++;
+				switch (Seg1Value) {
+				case 1:
+					square[0] = 1;
+					break;
+				case 2:
+					square[1] = 1;
+					break;
+				case 3:
+					square[2] = 1;
+					break;
+				case 4:
+					square[3] = 1;
+					break;
+				case 5:
+					square[4] = 1;
+					break;
+				case 6:
+					square[5] = 1;
+					break;
+				default:
+					break;
 				}
 			}
+		}
 		} else {
 			redcnt = 0;
 		}
@@ -320,7 +346,7 @@ void TIM3_IRQHandler(void) {
 		}
 
 
-
+		imupidout = PID_Compute(&imupid, AngleTarget, AngleNow);
 
 
 		tick++;
